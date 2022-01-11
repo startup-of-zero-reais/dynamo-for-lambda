@@ -1,0 +1,4 @@
+go test -coverprofile=./tests/coverage-report.out ./...
+
+go tool cover -func=./tests/coverage-report.out
+go tool cover -html=./tests/coverage-report.out
