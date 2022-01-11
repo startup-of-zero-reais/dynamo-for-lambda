@@ -17,3 +17,11 @@ auto gerada do Godoc subam
 Após isso você terá disponível:
 - DynamoDB - [http://localhost:8000](http://localhost:8000)
 - Godoc - [http://localhost:6060](http://localhost:6060/pkg/github.com/startup-of-zero-reais/dynamo-for-lambda)
+
+# Testes
+
+Rode os testes e veja quanto coverage tem
+
+```shell
+./tests
+```
