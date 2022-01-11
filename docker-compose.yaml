@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  dynamo_test:
+    command: "-jar DynamoDBLocal.jar "
+    container_name: dynamo_test
+    image: amazon/dynamodb-local:1.17.2
+    restart: always
+    ports:
+      - "8000:8000"
+
+  dynamo_docs:
+    container_name: dynamo_docs
+    image: golang:1.17-alpine
+    ports:
+      - "6060:6060"
+    volumes:
+      - .:/go/src
+    working_dir: /go/src
+    command:
+      - /bin/sh
+      - -c
+      - |
+        go install -v golang.org/x/tools/cmd/godoc@latest 
+        godoc -http=:6060
