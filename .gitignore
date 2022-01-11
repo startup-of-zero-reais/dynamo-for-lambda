@@ -2,3 +2,5 @@
 .docker
 
 main.go
+tests/*
+!.gitkeep
