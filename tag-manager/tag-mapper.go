@@ -2,6 +2,7 @@ package tagManager
 
 import (
 	"errors"
+	"github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager/logger"
 	"reflect"
 	"strings"
 	"time"
@@ -57,7 +58,7 @@ type (
 		FieldList  []reflect.StructField
 
 		*TagsModel
-		Log
+		logger.Log
 	}
 )
 
@@ -101,6 +102,8 @@ func (t *TagMapper) RunMap() error {
 	return nil
 }
 
+// TagsLoop é o método que faz a iteração nos campos da Struct recebida
+// em TagManager.SetEntity do TagManager
 func (t *TagMapper) TagsLoop(cases ...TagHandler) error {
 	for _, field := range t.FieldList {
 		if inlineTags, ok := field.Tag.Lookup("diinamo"); ok {
