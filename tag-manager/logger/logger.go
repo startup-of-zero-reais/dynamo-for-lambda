@@ -1,4 +1,4 @@
-package tagManager
+package logger
 
 import (
 	"fmt"
