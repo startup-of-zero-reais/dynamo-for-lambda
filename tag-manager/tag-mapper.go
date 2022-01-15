@@ -60,6 +60,22 @@ type (
 		*TagsModel
 		logger.Log
 	}
+
+	// TagMapperInterface sugere o contrato de TagMapper com
+	// o fim de manter a consistência de métodos e retornos
+	TagMapperInterface interface {
+		ExtractFieldList()
+		RunMap() error
+		TagsLoop(cases ...TagHandler) error
+		ExtractPK(tagsPair []string, field reflect.StructField) error
+		ExtractGSI(tagsPair []string, field reflect.StructField) error
+		ExtractLSI(tagsPair []string, field reflect.StructField) error
+		ExtractTypes(tagsPair []string, field reflect.StructField) error
+
+		SetPropertyTypes(v reflect.Type)
+
+		TagGetters
+	}
 )
 
 // Tags
@@ -251,4 +267,24 @@ func (t *TagMapper) ExtractTypes(tagsPair []string, field reflect.StructField) e
 	}
 	t.Info("end Types extraction... %v spent\n", time.Since(started))
 	return nil
+}
+
+// SetPropertyTypes define o valor de PropertyTypes
+func (t *TagMapper) SetPropertyTypes(v reflect.Type) {
+	t.PropertyTypes = v
+}
+
+// GetHash devolve o nome do campo que representa o Hash da tabela
+func (t *TagMapper) GetHash() string {
+	return t.Hash
+}
+
+// GetRange devolve o nome do campo que representa a Sort Key da tabela
+func (t *TagMapper) GetRange() string {
+	return t.Range
+}
+
+// GetType recupera o valor definido pela tag type de uma key específica
+func (t *TagMapper) GetType(key string) reflect.Kind {
+	return t.Types[key]
 }
