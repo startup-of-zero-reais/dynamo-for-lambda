@@ -213,3 +213,22 @@ func TestTagMapper_ExtractTypes(t *testing.T) {
 		assert.NotNil(t, tm.Types)
 	})
 }
+
+func TestTagMapper_TagGetters(t *testing.T) {
+	t.Run("should return key tags", func(t *testing.T) {
+		tm := prepareTagMapper()
+		err := tm.RunMap()
+		assert.Nil(t, err)
+
+		hash := tm.GetHash()
+		_range := tm.GetRange()
+		_type := tm.GetType(hash)
+
+		assert.NotZero(t, hash)
+		assert.NotZero(t, _range)
+		assert.NotZero(t, _type)
+		assert.Equal(t, "PK", hash)
+		assert.Equal(t, "SK", _range)
+		assert.Equal(t, reflect.String, _type)
+	})
+}
