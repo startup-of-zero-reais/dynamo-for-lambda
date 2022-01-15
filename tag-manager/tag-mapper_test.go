@@ -358,13 +358,5 @@ func ExampleTagMapper_RunMap() {
 	// GetType retorna um reflect.Kind
 	fmt.Printf("%+v", tm.TagsModel)
 	// Output:
-	// &{
-	//  Hash:PK
-	//  Range:SK
-	//  GSI:[{IndexName:CourseOwnerIndex Hash:PK Range:Owner ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}
-	//   {IndexName:CourseTitleIndex Hash:Title Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}
-	//   {IndexName:CourseLessonsIndex Hash:ParentCourse Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}]
-	//  LSI:[{IndexName:ModuleLessonsIndex Hash:ParentModule Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}]
-	//  Types:map[Owner:string PK:int ParentCourse:string ParentModule:string SK:string Title:string]
-	// }
+	// &{Hash:PK Range:SK GSI:[{IndexName:CourseOwnerIndex Hash:PK Range:Owner ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}} {IndexName:CourseTitleIndex Hash:Title Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}} {IndexName:CourseLessonsIndex Hash:ParentCourse Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}] LSI:[{IndexName:ModuleLessonsIndex Hash:ParentModule Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}] Types:map[Owner:string PK:int ParentCourse:string ParentModule:string SK:string Title:string]}
 }
