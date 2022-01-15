@@ -7,6 +7,7 @@ import (
 	tagManager "github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager"
 	"github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager/logger"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"reflect"
 	"strings"
 	"testing"
@@ -231,4 +232,139 @@ func TestTagMapper_TagGetters(t *testing.T) {
 		assert.Equal(t, "SK", _range)
 		assert.Equal(t, reflect.String, _type)
 	})
+}
+
+func ExampleTagMapper_ExtractFieldList() {
+	tm := &tagManager.TagMapper{}
+	tm.SetPropertyTypes(reflect.TypeOf(tagManager.ExampleEntity{}))
+
+	tm.ExtractFieldList()
+
+	// tm.PropertyTypes é do tipo reflect.Type
+	fmt.Println(tm.PropertyTypes)
+	// Output:
+	// tagManager.ExampleEntity
+}
+
+func ExampleTagMapper_ExtractGSI() {
+	tm := &tagManager.TagMapper{
+		Log:       logger.NewLogger(),
+		TagsModel: new(tagManager.TagsModel),
+	}
+
+	// Seta o reflect.Type da entidade com as tags diinamo
+	tm.SetPropertyTypes(reflect.TypeOf(tagManager.ExampleEntity{}))
+	// Extrai a FieldList
+	tm.ExtractFieldList()
+
+	// Extrai e monta as combinações de tags com gsi e keyPairs
+	// e gera os Global Secondary Index
+	err := tm.ExtractGSI([]string{"gsi:IndexName", "keyPairs:PK=SK"}, tm.PropertyTypes.Field(0))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Printf("%+v", tm.TagsModel.GSI)
+	// Output:
+	// [{IndexName:IndexName Hash:PK Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}]
+}
+
+func ExampleTagMapper_ExtractLSI() {
+	tm := &tagManager.TagMapper{
+		Log:       logger.NewLogger(),
+		TagsModel: new(tagManager.TagsModel),
+	}
+
+	// Seta o reflect.Type da entidade com as tags diinamo
+	tm.SetPropertyTypes(reflect.TypeOf(tagManager.ExampleEntity{}))
+	// Extrai a FieldList
+	tm.ExtractFieldList()
+
+	// Extrai e monta as combinações de tags com lsi e keyPairs
+	// e gera os Local Secondary Index
+	err := tm.ExtractLSI([]string{"lsi:IndexName", "keyPairs:PK=SK"}, tm.PropertyTypes.Field(0))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Printf("%+v", tm.TagsModel.LSI)
+	// Output:
+	// [{IndexName:IndexName Hash:PK Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}]
+}
+
+func ExampleTagMapper_ExtractPK() {
+	tm := &tagManager.TagMapper{
+		Log:       logger.NewLogger(),
+		TagsModel: new(tagManager.TagsModel),
+	}
+
+	// Seta o reflect.Type da entidade com as tags diinamo
+	tm.SetPropertyTypes(reflect.TypeOf(tagManager.ExampleEntity{}))
+	// Extrai a FieldList
+	tm.ExtractFieldList()
+
+	// Executa a extração do hash
+	err := tm.ExtractPK([]string{"hash"}, tm.PropertyTypes.Field(0))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Executa a extração do range
+	err = tm.ExtractPK([]string{"range"}, tm.PropertyTypes.Field(1))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Printf("%s %s", tm.TagsModel.Hash, tm.TagsModel.Range)
+	// Output: PK SK
+}
+
+func ExampleTagMapper_ExtractTypes() {
+	tm := &tagManager.TagMapper{
+		Log:       logger.NewLogger(),
+		TagsModel: new(tagManager.TagsModel),
+	}
+
+	// Seta o reflect.Type da entidade com as tags diinamo
+	tm.SetPropertyTypes(reflect.TypeOf(tagManager.ExampleEntity{}))
+	// Extrai a FieldList
+	tm.ExtractFieldList()
+
+	// Executa a extração do hash
+	err := tm.ExtractTypes([]string{"type:number"}, tm.PropertyTypes.Field(0))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// GetType retorna um reflect.Kind
+	fmt.Println(tm.GetType("PK"))
+	// Output: int
+}
+
+func ExampleTagMapper_RunMap() {
+	tm := &tagManager.TagMapper{
+		Log:       logger.NewLogger(),
+		TagsModel: new(tagManager.TagsModel),
+	}
+
+	// Seta o reflect.Type da entidade com as tags diinamo
+	tm.SetPropertyTypes(reflect.TypeOf(tagManager.ExampleEntity{}))
+	// Roda o mapeamento da entity
+	err := tm.RunMap()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// GetType retorna um reflect.Kind
+	fmt.Printf("%+v", tm.TagsModel)
+	// Output:
+	// &{
+	//  Hash:PK
+	//  Range:SK
+	//  GSI:[{IndexName:CourseOwnerIndex Hash:PK Range:Owner ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}
+	//   {IndexName:CourseTitleIndex Hash:Title Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}
+	//   {IndexName:CourseLessonsIndex Hash:ParentCourse Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}]
+	//  LSI:[{IndexName:ModuleLessonsIndex Hash:ParentModule Range:SK ProvisionedThroughput:{ReadCapacity:1 WriteCapacity:1}}]
+	//  Types:map[Owner:string PK:int ParentCourse:string ParentModule:string SK:string Title:string]
+	// }
 }
