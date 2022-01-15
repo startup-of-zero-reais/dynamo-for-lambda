@@ -10,6 +10,8 @@ type (
 	Manager interface {
 		SetEntity(entity interface{}) Manager
 		MapTags() error
+		GetHash() string
+		GetRange() string
 	}
 
 	// TagManager é a estrutura que gerencia as tags extraídas.
@@ -20,18 +22,24 @@ type (
 
 		logger.Log
 
-		*TagMapper
+		TagMapper TagMapperInterface
+	}
+
+	TagGetters interface {
+		GetHash() string
+		GetRange() string
+		GetType(key string) reflect.Kind
 	}
 )
 
 // NewTagManager inicializa uma estrutura TagManager
 func NewTagManager() *TagManager {
-	logger := logger.NewLogger()
+	logg := logger.NewLogger()
 
 	return &TagManager{
-		Log: logger,
+		Log: logg,
 		TagMapper: &TagMapper{
-			Log: logger,
+			Log: logg,
 		},
 	}
 }
@@ -43,7 +51,7 @@ func (t *TagManager) SetEntity(entity interface{}) *TagManager {
 	t.StructToMap = entity
 
 	// Inicializa o TagMapper dentro de TagManager
-	t.TagMapper.PropertyTypes = reflect.TypeOf(t.StructToMap)
+	t.TagMapper.SetPropertyTypes(reflect.TypeOf(t.StructToMap))
 
 	return t
 }
@@ -51,5 +59,20 @@ func (t *TagManager) SetEntity(entity interface{}) *TagManager {
 // MapTags é um método que executa a extração das tags e faz o
 // mapeamento do TagMapper para o TagManager
 func (t *TagManager) MapTags() error {
-	return t.RunMap()
+	return t.TagMapper.RunMap()
+}
+
+// GetHash devolve o nome do campo que representa o Hash da tabela
+func (t *TagManager) GetHash() string {
+	return t.TagMapper.GetHash()
+}
+
+// GetRange devolve o nome do campo que representa a Sort Key da tabela
+func (t *TagManager) GetRange() string {
+	return t.TagMapper.GetRange()
+}
+
+// GetType recupera o valor definido pela tag type de uma key específica
+func (t *TagManager) GetType(key string) reflect.Kind {
+	return t.TagMapper.GetType(key)
 }
