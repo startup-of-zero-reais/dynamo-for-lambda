@@ -65,6 +65,15 @@ func TestTagManager_TagGetters(t *testing.T) {
 	})
 }
 
+func TestExampleEntity_This(t *testing.T) {
+	t.Run("should return this", func(t *testing.T) {
+		ee := &tagManager.ExampleEntity{}
+		e := ee.This()
+
+		assert.Equal(t, ee, e)
+	})
+}
+
 func ExampleTagManager_GetHash() {
 	// Nova instância de TagManager
 	tm := tagManager.NewTagManager()
