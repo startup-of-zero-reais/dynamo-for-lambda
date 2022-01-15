@@ -1,10 +1,12 @@
 package tagManager_test
 
 import (
+	"fmt"
 	mocks "github.com/startup-of-zero-reais/dynamo-for-lambda/mocks/tag-manager"
 	tagManager "github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager"
 	"github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager/logger"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"reflect"
 	"testing"
 )
@@ -61,4 +63,86 @@ func TestTagManager_TagGetters(t *testing.T) {
 		assert.NotZero(t, _range)
 		assert.NotZero(t, _type)
 	})
+}
+
+func ExampleTagManager_GetHash() {
+	// Nova instância de TagManager
+	tm := tagManager.NewTagManager()
+
+	// Define a entidade a ter as tags mapeadas e imediatamente
+	// mapeia as tags da entidade
+	// MapTags retorna um erro
+	err := tm.SetEntity(mocks.Mocktable{}).MapTags()
+	if err != nil {
+		// Tratamento de erro
+		log.Fatalln(err)
+	}
+
+	fmt.Println(tm.GetHash())
+	// Output:
+	// PK
+}
+
+func ExampleTagManager_GetRange() {
+	// Nova instância de TagManager
+	tm := tagManager.NewTagManager()
+
+	// Define a entidade a ter as tags mapeadas e imediatamente
+	// mapeia as tags da entidade
+	// MapTags retorna um erro
+	err := tm.SetEntity(mocks.Mocktable{}).MapTags()
+	if err != nil {
+		// Tratamento de erro
+		log.Fatalln(err)
+	}
+
+	fmt.Println(tm.GetRange())
+	// Output:
+	// SK
+}
+
+func ExampleTagManager_GetType() {
+	// Nova instância de TagManager
+	tm := tagManager.NewTagManager()
+
+	// Define a entidade a ter as tags mapeadas e imediatamente
+	// mapeia as tags da entidade
+	// MapTags retorna um erro
+	err := tm.SetEntity(mocks.Mocktable{}).MapTags()
+	if err != nil {
+		// Tratamento de erro
+		log.Fatalln(err)
+	}
+
+	// GetType retorna um valor do tipo reflect.Kind
+	fmt.Println(tm.GetType("PK"))
+	// Output:
+	// string
+}
+
+func ExampleTagManager_MapTags() {
+	// Nova instância de TagManager
+	tm := tagManager.NewTagManager()
+
+	// Define a entidade a ter as tags mapeadas e imediatamente
+	// mapeia as tags da entidade
+	// MapTags retorna um erro
+	err := tm.SetEntity(mocks.Mocktable{}).MapTags()
+	if err != nil {
+		// Tratamento de erro
+		log.Fatalln(err)
+	}
+
+	fmt.Println(tm.TagMapper.GetHash())
+	// Output:
+	// PK
+}
+
+func ExampleTagManager_SetEntity() {
+	// Nova instância de TagManager
+	tm := tagManager.NewTagManager()
+
+	// Define a entidade a ter as tags mapeadas
+	tm.SetEntity(tagManager.ExampleEntity{})
+	// Output:
 }
