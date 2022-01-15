@@ -15,6 +15,6 @@ mock:
 
 .PHONY: test
 test:
-	$(GOTEST) -coverprofile=./tests/coverage-report.out ./...
+	ENVIRONMENT=testing $(GOTEST) -coverprofile=./tests/coverage-report.out ./...
 	$(GOCOVER) -func=./tests/coverage-report.out
 	$(GOCOVER) -html=./tests/coverage-report.out

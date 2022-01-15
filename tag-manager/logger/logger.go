@@ -70,7 +70,9 @@ func (l *Logger) printer(s string, v ...interface{}) {
 
 	s = fmt.Sprintf("%s %s", Colorize(fmt.Sprintf("[%s]", label), color), s)
 
-	_, _ = fmt.Fprintf(l.Config.Output, s, v...)
+	if os.Getenv("ENVIRONMENT") != "testing" {
+		_, _ = fmt.Fprintf(l.Config.Output, s, v...)
+	}
 }
 
 // Debug faz o print com o level debug (1)
