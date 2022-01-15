@@ -10,8 +10,7 @@ type (
 	Manager interface {
 		SetEntity(entity interface{}) Manager
 		MapTags() error
-		GetHash() string
-		GetRange() string
+		TagGetters
 	}
 
 	// TagManager é a estrutura que gerencia as tags extraídas.
@@ -77,7 +76,9 @@ func (t *TagManager) GetType(key string) reflect.Kind {
 /* Exemplo de entidade e tags aceitas */
 
 // ExampleEntity é um exemplo de entidade com as tags aceitas
-// e exemplos de como definir as tags
+// e exemplos de como definir as tags.
+//
+// 	OBS: ExampleEntity não deve ser usado!
 type ExampleEntity struct {
 	PK           int    `diinamo:"type:number;hash"`
 	SK           string `diinamo:"type:string;range"`
@@ -87,6 +88,7 @@ type ExampleEntity struct {
 	ParentModule string `diinamo:"type:string;lsi:ModuleLessonsIndex;keyPairs:ParentModule=SK"`
 }
 
+// This é um método apenas de teste para ExampleEntity
 func (e *ExampleEntity) This() *ExampleEntity {
 	return e
 }
