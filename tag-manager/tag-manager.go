@@ -18,11 +18,8 @@ type (
 	// Tags específicas da chave: diinamo
 	TagManager struct {
 		StructToMap interface{}
-		Tags        map[string]interface{}
-
+		TagMapper   TagMapperInterface
 		logger.Log
-
-		TagMapper TagMapperInterface
 	}
 
 	TagGetters interface {
@@ -75,4 +72,21 @@ func (t *TagManager) GetRange() string {
 // GetType recupera o valor definido pela tag type de uma key específica
 func (t *TagManager) GetType(key string) reflect.Kind {
 	return t.TagMapper.GetType(key)
+}
+
+/* Exemplo de entidade e tags aceitas */
+
+// ExampleEntity é um exemplo de entidade com as tags aceitas
+// e exemplos de como definir as tags
+type ExampleEntity struct {
+	PK           int    `diinamo:"type:number;hash"`
+	SK           string `diinamo:"type:string;range"`
+	Owner        string `diinamo:"type:string;gsi:CourseOwnerIndex;keyPairs:PK=Owner"`
+	Title        string `diinamo:"type:string;gsi:CourseTitleIndex;keyPairs:Title=SK"`
+	ParentCourse string `diinamo:"type:string;gsi:CourseLessonsIndex;keyPairs:ParentCourse=SK"`
+	ParentModule string `diinamo:"type:string;lsi:ModuleLessonsIndex;keyPairs:ParentModule=SK"`
+}
+
+func (e *ExampleEntity) This() *ExampleEntity {
+	return e
 }
