@@ -90,6 +90,22 @@ func (_m *TagMapperInterface) GetHash() string {
 	return r0
 }
 
+// GetModel provides a mock function with given fields:
+func (_m *TagMapperInterface) GetModel() *tagManager.TagsModel {
+	ret := _m.Called()
+
+	var r0 *tagManager.TagsModel
+	if rf, ok := ret.Get(0).(func() *tagManager.TagsModel); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*tagManager.TagsModel)
+		}
+	}
+
+	return r0
+}
+
 // GetRange provides a mock function with given fields:
 func (_m *TagMapperInterface) GetRange() string {
 	ret := _m.Called()

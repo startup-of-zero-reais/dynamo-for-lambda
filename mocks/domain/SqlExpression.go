@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	codDynamo "github.com/startup-of-zero-reais/dynamo-for-lambda"
+	domain "github.com/startup-of-zero-reais/dynamo-for-lambda/domain"
 	mock "github.com/stretchr/testify/mock"
 
 	types "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -15,15 +15,15 @@ type SqlExpression struct {
 }
 
 // AndWhere provides a mock function with given fields: keyCondition
-func (_m *SqlExpression) AndWhere(keyCondition codDynamo.WithSortKeyCondition) codDynamo.SqlExpression {
+func (_m *SqlExpression) AndWhere(keyCondition domain.WithSortKeyCondition) domain.SqlExpression {
 	ret := _m.Called(keyCondition)
 
-	var r0 codDynamo.SqlExpression
-	if rf, ok := ret.Get(0).(func(codDynamo.WithSortKeyCondition) codDynamo.SqlExpression); ok {
+	var r0 domain.SqlExpression
+	if rf, ok := ret.Get(0).(func(domain.WithSortKeyCondition) domain.SqlExpression); ok {
 		r0 = rf(keyCondition)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(codDynamo.SqlExpression)
+			r0 = ret.Get(0).(domain.SqlExpression)
 		}
 	}
 
@@ -95,15 +95,15 @@ func (_m *SqlExpression) Names() map[string]types.AttributeValue {
 }
 
 // SetIndex provides a mock function with given fields: indexName
-func (_m *SqlExpression) SetIndex(indexName string) codDynamo.SqlExpression {
+func (_m *SqlExpression) SetIndex(indexName string) domain.SqlExpression {
 	ret := _m.Called(indexName)
 
-	var r0 codDynamo.SqlExpression
-	if rf, ok := ret.Get(0).(func(string) codDynamo.SqlExpression); ok {
+	var r0 domain.SqlExpression
+	if rf, ok := ret.Get(0).(func(string) domain.SqlExpression); ok {
 		r0 = rf(indexName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(codDynamo.SqlExpression)
+			r0 = ret.Get(0).(domain.SqlExpression)
 		}
 	}
 
@@ -127,15 +127,15 @@ func (_m *SqlExpression) Values() map[string]types.AttributeValue {
 }
 
 // Where provides a mock function with given fields: condition
-func (_m *SqlExpression) Where(condition codDynamo.WithCondition) codDynamo.SqlExpression {
+func (_m *SqlExpression) Where(condition domain.WithCondition) domain.SqlExpression {
 	ret := _m.Called(condition)
 
-	var r0 codDynamo.SqlExpression
-	if rf, ok := ret.Get(0).(func(codDynamo.WithCondition) codDynamo.SqlExpression); ok {
+	var r0 domain.SqlExpression
+	if rf, ok := ret.Get(0).(func(domain.WithCondition) domain.SqlExpression); ok {
 		r0 = rf(condition)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(codDynamo.SqlExpression)
+			r0 = ret.Get(0).(domain.SqlExpression)
 		}
 	}
 

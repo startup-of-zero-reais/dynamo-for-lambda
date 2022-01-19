@@ -3,9 +3,10 @@ package tagManager_test
 import (
 	"errors"
 	"fmt"
+	"github.com/startup-of-zero-reais/dynamo-for-lambda/logger"
+	tableMock "github.com/startup-of-zero-reais/dynamo-for-lambda/mocks/domain"
 	mocks "github.com/startup-of-zero-reais/dynamo-for-lambda/mocks/tag-manager"
 	tagManager "github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager"
-	"github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager/logger"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"reflect"
@@ -15,7 +16,7 @@ import (
 
 func prepareTagMapper() *tagManager.TagMapper {
 	tm := &tagManager.TagMapper{
-		PropertyTypes: reflect.TypeOf(mocks.Mocktable{}),
+		PropertyTypes: reflect.TypeOf(tableMock.Mocktable{}),
 		Log:           logger.NewLogger(),
 		TagsModel:     new(tagManager.TagsModel),
 	}
@@ -28,7 +29,7 @@ func prepareTagMapper() *tagManager.TagMapper {
 func TestTagMapper_ExtractFieldList(t *testing.T) {
 	t.Run("should extract field list from PropertyTypes", func(t *testing.T) {
 		tagMapper := &tagManager.TagMapper{
-			PropertyTypes: reflect.TypeOf(mocks.Mocktable{}),
+			PropertyTypes: reflect.TypeOf(tableMock.Mocktable{}),
 		}
 
 		assert.Nil(t, tagMapper.FieldList)
@@ -44,7 +45,7 @@ func TestTagMapper_ExtractFieldList(t *testing.T) {
 func TestTagMapper_RunMap(t *testing.T) {
 	t.Run("should run mapper", func(t *testing.T) {
 		tm := &tagManager.TagMapper{
-			PropertyTypes: reflect.TypeOf(mocks.Mocktable{}),
+			PropertyTypes: reflect.TypeOf(tableMock.Mocktable{}),
 			Log:           logger.NewLogger(),
 		}
 
@@ -62,7 +63,7 @@ func TestTagMapper_RunMap(t *testing.T) {
 	})
 	t.Run("should capture fail tags loop", func(t *testing.T) {
 		tm := &tagManager.TagMapper{
-			PropertyTypes: reflect.TypeOf(mocks.Mocktable{}),
+			PropertyTypes: reflect.TypeOf(tableMock.Mocktable{}),
 			Log:           logger.NewLogger(),
 		}
 

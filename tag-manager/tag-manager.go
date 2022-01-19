@@ -1,7 +1,7 @@
 package tagManager
 
 import (
-	"github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager/logger"
+	"github.com/startup-of-zero-reais/dynamo-for-lambda/logger"
 	"reflect"
 )
 
@@ -10,6 +10,8 @@ type (
 	Manager interface {
 		SetEntity(entity interface{}) Manager
 		MapTags() error
+		GetMapper() TagMapperInterface
+
 		TagGetters
 	}
 
@@ -43,7 +45,7 @@ func NewTagManager() *TagManager {
 // SetEntity define uma estrutura que será iterada.
 // A estrutura não precisa ter valores preenchidos, deve apenas, ter as
 // tags que correspondem a chave diinamo
-func (t *TagManager) SetEntity(entity interface{}) *TagManager {
+func (t *TagManager) SetEntity(entity interface{}) Manager {
 	t.StructToMap = entity
 
 	// Inicializa o TagMapper dentro de TagManager
@@ -71,6 +73,12 @@ func (t *TagManager) GetRange() string {
 // GetType recupera o valor definido pela tag type de uma key específica
 func (t *TagManager) GetType(key string) reflect.Kind {
 	return t.TagMapper.GetType(key)
+}
+
+// GetMapper é um método para recuperar o TagMapper
+// dentro de TagManager
+func (t *TagManager) GetMapper() TagMapperInterface {
+	return t.TagMapper
 }
 
 /* Exemplo de entidade e tags aceitas */

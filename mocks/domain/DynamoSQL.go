@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	codDynamo "github.com/startup-of-zero-reais/dynamo-for-lambda"
+	domain "github.com/startup-of-zero-reais/dynamo-for-lambda/domain"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -13,11 +13,11 @@ type DynamoSQL struct {
 }
 
 // Delete provides a mock function with given fields: expression
-func (_m *DynamoSQL) Delete(expression codDynamo.SqlExpression) error {
+func (_m *DynamoSQL) Delete(expression domain.SqlExpression) error {
 	ret := _m.Called(expression)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(codDynamo.SqlExpression) error); ok {
+	if rf, ok := ret.Get(0).(func(domain.SqlExpression) error); ok {
 		r0 = rf(expression)
 	} else {
 		r0 = ret.Error(0)
@@ -27,11 +27,11 @@ func (_m *DynamoSQL) Delete(expression codDynamo.SqlExpression) error {
 }
 
 // Get provides a mock function with given fields: expression, target
-func (_m *DynamoSQL) Get(expression codDynamo.SqlExpression, target interface{}) error {
+func (_m *DynamoSQL) Get(expression domain.SqlExpression, target interface{}) error {
 	ret := _m.Called(expression, target)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(codDynamo.SqlExpression, interface{}) error); ok {
+	if rf, ok := ret.Get(0).(func(domain.SqlExpression, interface{}) error); ok {
 		r0 = rf(expression, target)
 	} else {
 		r0 = ret.Error(0)
@@ -55,11 +55,11 @@ func (_m *DynamoSQL) Put(item interface{}, result interface{}) error {
 }
 
 // Update provides a mock function with given fields: expression, item, result
-func (_m *DynamoSQL) Update(expression codDynamo.Expression, item interface{}, result interface{}) error {
+func (_m *DynamoSQL) Update(expression interface{}, item interface{}, result interface{}) error {
 	ret := _m.Called(expression, item, result)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(codDynamo.Expression, interface{}, interface{}) error); ok {
+	if rf, ok := ret.Get(0).(func(interface{}, interface{}, interface{}) error); ok {
 		r0 = rf(expression, item, result)
 	} else {
 		r0 = ret.Error(0)

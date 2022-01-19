@@ -4,7 +4,7 @@ package mocks
 
 import (
 	dynamodb "github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	codDynamo "github.com/startup-of-zero-reais/dynamo-for-lambda"
+	domain "github.com/startup-of-zero-reais/dynamo-for-lambda/domain"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -29,15 +29,15 @@ func (_m *Dynamo) Migrate() error {
 }
 
 // NewExpressionBuilder provides a mock function with given fields:
-func (_m *Dynamo) NewExpressionBuilder() codDynamo.SqlExpression {
+func (_m *Dynamo) NewExpressionBuilder() domain.SqlExpression {
 	ret := _m.Called()
 
-	var r0 codDynamo.SqlExpression
-	if rf, ok := ret.Get(0).(func() codDynamo.SqlExpression); ok {
+	var r0 domain.SqlExpression
+	if rf, ok := ret.Get(0).(func() domain.SqlExpression); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(codDynamo.SqlExpression)
+			r0 = ret.Get(0).(domain.SqlExpression)
 		}
 	}
 
@@ -45,11 +45,11 @@ func (_m *Dynamo) NewExpressionBuilder() codDynamo.SqlExpression {
 }
 
 // Perform provides a mock function with given fields: action, sql, result
-func (_m *Dynamo) Perform(action codDynamo.Action, sql codDynamo.SqlExpression, result interface{}) error {
+func (_m *Dynamo) Perform(action domain.Action, sql domain.SqlExpression, result interface{}) error {
 	ret := _m.Called(action, sql, result)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(codDynamo.Action, codDynamo.SqlExpression, interface{}) error); ok {
+	if rf, ok := ret.Get(0).(func(domain.Action, domain.SqlExpression, interface{}) error); ok {
 		r0 = rf(action, sql, result)
 	} else {
 		r0 = ret.Error(0)

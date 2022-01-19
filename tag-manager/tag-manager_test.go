@@ -2,9 +2,10 @@ package tagManager_test
 
 import (
 	"fmt"
+	"github.com/startup-of-zero-reais/dynamo-for-lambda/logger"
+	tableMock "github.com/startup-of-zero-reais/dynamo-for-lambda/mocks/domain"
 	mocks "github.com/startup-of-zero-reais/dynamo-for-lambda/mocks/tag-manager"
 	tagManager "github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager"
-	"github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager/logger"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"reflect"
@@ -20,7 +21,7 @@ func TestTagManager_SetEntity(t *testing.T) {
 		}
 		assert.Nil(t, tm.StructToMap)
 
-		tm.SetEntity(mocks.Mocktable{})
+		tm.SetEntity(tableMock.Mocktable{})
 		assert.NotNil(t, tm.StructToMap)
 	})
 }
@@ -29,7 +30,7 @@ func TestTagManager_MapTags(t *testing.T) {
 	t.Run("should call RunMap inside TagMapper", func(t *testing.T) {
 		logg := logger.NewLogger()
 		tagMapper := new(mocks.TagMapperInterface)
-		tagMapper.On("SetPropertyTypes", reflect.TypeOf(mocks.Mocktable{})).Return()
+		tagMapper.On("SetPropertyTypes", reflect.TypeOf(tableMock.Mocktable{})).Return()
 		tagMapper.On("RunMap").Return(nil)
 
 		tm := &tagManager.TagManager{
@@ -37,7 +38,7 @@ func TestTagManager_MapTags(t *testing.T) {
 			TagMapper: tagMapper,
 		}
 
-		tm.SetEntity(mocks.Mocktable{})
+		tm.SetEntity(tableMock.Mocktable{})
 
 		err := tm.MapTags()
 
@@ -81,7 +82,7 @@ func ExampleTagManager_GetHash() {
 	// Define a entidade a ter as tags mapeadas e imediatamente
 	// mapeia as tags da entidade
 	// MapTags retorna um erro
-	err := tm.SetEntity(mocks.Mocktable{}).MapTags()
+	err := tm.SetEntity(tableMock.Mocktable{}).MapTags()
 	if err != nil {
 		// Tratamento de erro
 		log.Fatalln(err)
@@ -99,7 +100,7 @@ func ExampleTagManager_GetRange() {
 	// Define a entidade a ter as tags mapeadas e imediatamente
 	// mapeia as tags da entidade
 	// MapTags retorna um erro
-	err := tm.SetEntity(mocks.Mocktable{}).MapTags()
+	err := tm.SetEntity(tableMock.Mocktable{}).MapTags()
 	if err != nil {
 		// Tratamento de erro
 		log.Fatalln(err)
@@ -117,7 +118,7 @@ func ExampleTagManager_GetType() {
 	// Define a entidade a ter as tags mapeadas e imediatamente
 	// mapeia as tags da entidade
 	// MapTags retorna um erro
-	err := tm.SetEntity(mocks.Mocktable{}).MapTags()
+	err := tm.SetEntity(tableMock.Mocktable{}).MapTags()
 	if err != nil {
 		// Tratamento de erro
 		log.Fatalln(err)
@@ -136,7 +137,7 @@ func ExampleTagManager_MapTags() {
 	// Define a entidade a ter as tags mapeadas e imediatamente
 	// mapeia as tags da entidade
 	// MapTags retorna um erro
-	err := tm.SetEntity(mocks.Mocktable{}).MapTags()
+	err := tm.SetEntity(tableMock.Mocktable{}).MapTags()
 	if err != nil {
 		// Tratamento de erro
 		log.Fatalln(err)

@@ -2,7 +2,7 @@ package tagManager
 
 import (
 	"errors"
-	"github.com/startup-of-zero-reais/dynamo-for-lambda/tag-manager/logger"
+	"github.com/startup-of-zero-reais/dynamo-for-lambda/logger"
 	"reflect"
 	"strings"
 	"time"
@@ -64,6 +64,7 @@ type (
 	// TagMapperInterface sugere o contrato de TagMapper com
 	// o fim de manter a consistência de métodos e retornos
 	TagMapperInterface interface {
+		SetPropertyTypes(v reflect.Type)
 		ExtractFieldList()
 		RunMap() error
 		TagsLoop(cases ...TagHandler) error
@@ -72,7 +73,7 @@ type (
 		ExtractLSI(tagsPair []string, field reflect.StructField) error
 		ExtractTypes(tagsPair []string, field reflect.StructField) error
 
-		SetPropertyTypes(v reflect.Type)
+		GetModel() *TagsModel
 
 		TagGetters
 	}
@@ -101,6 +102,7 @@ func (t *TagMapper) ExtractFieldList() {
 // RunMap é o método que irá criar, manipular e definir as tags
 // em TagsModel dentro de TagMapper
 func (t *TagMapper) RunMap() error {
+	started := time.Now()
 	t.Debug("running map...")
 	t.ExtractFieldList()
 
@@ -113,7 +115,7 @@ func (t *TagMapper) RunMap() error {
 		return err
 	}
 
-	t.Debug("%+v\n", t.TagsModel)
+	t.Debug("extraction complete. %v spent\n", time.Since(started))
 
 	return nil
 }
@@ -145,9 +147,6 @@ func (t *TagMapper) TagsLoop(cases ...TagHandler) error {
 // Hash e Range
 func (t *TagMapper) ExtractPK(tagsPair []string, field reflect.StructField) error {
 	for _, tag := range tagsPair {
-		started := time.Now()
-		t.Info("starting PK extraction...")
-
 		if t.TagsModel == nil {
 			t.TagsModel = &TagsModel{}
 		}
@@ -158,8 +157,6 @@ func (t *TagMapper) ExtractPK(tagsPair []string, field reflect.StructField) erro
 		case _range:
 			t.TagsModel.Range = field.Name
 		}
-
-		t.Info("end PK extraction. %v spent\n", time.Since(started))
 	}
 
 	return nil
@@ -168,9 +165,6 @@ func (t *TagMapper) ExtractPK(tagsPair []string, field reflect.StructField) erro
 // ExtractGSI é um método de extração e definição dos pares de Chave
 // dos índices secundários: Hash, Range e IndexName
 func (t *TagMapper) ExtractGSI(tagsPair []string, field reflect.StructField) error {
-	started := time.Now()
-	t.Info("starting GSI extraction...")
-
 	gsIndex := &GlobalSecIndex{
 		ProvisionedThroughput: ProvisionedThroughput{
 			ReadCapacity:  1,
@@ -206,15 +200,12 @@ func (t *TagMapper) ExtractGSI(tagsPair []string, field reflect.StructField) err
 		t.TagsModel.GSI = append(t.TagsModel.GSI, *gsIndex)
 	}
 
-	t.Info("end GSI extraction. %v spent\n", time.Since(started))
 	return nil
 }
 
 // ExtractLSI é um método de extração de definição dos pares de Chave
 // dos índices secundários locais: Hash, Range, IndexName e Projection
 func (t *TagMapper) ExtractLSI(tagsPair []string, field reflect.StructField) error {
-	started := time.Now()
-	t.Info("starting LSI extraction...")
 	lsIndex := &LocalSecIndex{
 		ProvisionedThroughput: ProvisionedThroughput{ReadCapacity: 1, WriteCapacity: 1},
 	}
@@ -244,15 +235,12 @@ func (t *TagMapper) ExtractLSI(tagsPair []string, field reflect.StructField) err
 		t.TagsModel.LSI = append(t.TagsModel.LSI, *lsIndex)
 	}
 
-	t.Info("end of LSI extraction... %v spent\n", time.Since(started))
 	return nil
 }
 
 // ExtractTypes é um método para extrair os tipos definidos na tag diinamo
 // pela chave type
 func (t *TagMapper) ExtractTypes(tagsPair []string, field reflect.StructField) error {
-	started := time.Now()
-	t.Info("starting Types extraction...")
 	for _, tag := range tagsPair {
 		if t.TagsModel.Types == nil {
 			t.TagsModel.Types = map[string]reflect.Kind{}
@@ -265,7 +253,6 @@ func (t *TagMapper) ExtractTypes(tagsPair []string, field reflect.StructField) e
 			t.TagsModel.Types[field.Name] = field.Type.Kind()
 		}
 	}
-	t.Info("end Types extraction... %v spent\n", time.Since(started))
 	return nil
 }
 
@@ -287,4 +274,8 @@ func (t *TagMapper) GetRange() string {
 // GetType recupera o valor definido pela tag type de uma key específica
 func (t *TagMapper) GetType(key string) reflect.Kind {
 	return t.Types[key]
+}
+
+func (t *TagMapper) GetModel() *TagsModel {
+	return t.TagsModel
 }

@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	codDynamo "github.com/startup-of-zero-reais/dynamo-for-lambda"
+	domain "github.com/startup-of-zero-reais/dynamo-for-lambda/domain"
 	mock "github.com/stretchr/testify/mock"
 
 	types "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -29,15 +29,15 @@ func (_m *WithCondition) Name() string {
 }
 
 // SetName provides a mock function with given fields: name
-func (_m *WithCondition) SetName(name string) codDynamo.WithCondition {
+func (_m *WithCondition) SetName(name string) domain.WithCondition {
 	ret := _m.Called(name)
 
-	var r0 codDynamo.WithCondition
-	if rf, ok := ret.Get(0).(func(string) codDynamo.WithCondition); ok {
+	var r0 domain.WithCondition
+	if rf, ok := ret.Get(0).(func(string) domain.WithCondition); ok {
 		r0 = rf(name)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(codDynamo.WithCondition)
+			r0 = ret.Get(0).(domain.WithCondition)
 		}
 	}
 
