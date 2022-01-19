@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 )
 
 type (
@@ -55,10 +56,9 @@ func (l *Logger) printer(s string, v ...interface{}) {
 	case 2:
 		label = "INFO"
 		color = FgHiCyan
-
 	case 3:
 		label = "WARN"
-		color = FgYellow
+		color = FgHiYellow
 	case 4:
 		label = "ERROR"
 		color = FgRed
@@ -70,7 +70,7 @@ func (l *Logger) printer(s string, v ...interface{}) {
 
 	s = fmt.Sprintf("%s %s", Colorize(fmt.Sprintf("[%s]", label), color), s)
 
-	if os.Getenv("ENVIRONMENT") != "testing" {
+	if os.Getenv("ENVIRONMENT") != "testing" && osLogLevel() <= l.LogLevel {
 		_, _ = fmt.Fprintf(l.Config.Output, s, v...)
 	}
 }
@@ -104,4 +104,15 @@ func (l *Logger) Critical(s string, v ...interface{}) {
 	l.LogLevel = 5
 	l.printer(s, v...)
 	os.Exit(1)
+}
+
+// osLogLevel captura o level de logs definido nas environments da
+// aplicação, caso não esteja definido, o padrão é 4 (ERROR)
+func osLogLevel() int {
+	if lvl := os.Getenv("LOG_LEVEL"); lvl != "" {
+		intLvl, _ := strconv.Atoi(lvl)
+		return intLvl
+	}
+
+	return 4
 }
