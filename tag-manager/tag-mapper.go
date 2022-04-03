@@ -2,10 +2,11 @@ package tagManager
 
 import (
 	"errors"
-	"github.com/startup-of-zero-reais/dynamo-for-lambda/logger"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/startup-of-zero-reais/dynamo-for-lambda/logger"
 )
 
 type (
@@ -196,6 +197,7 @@ func (t *TagMapper) ExtractGSI(tagsPair []string, field reflect.StructField) err
 		return errors.New("max global secondary index reached")
 	}
 
+	t.Info("adding gsi: %+v\n", gsIndex)
 	if gsIndex.IndexName != "" && gsIndex.Hash != "" {
 		t.TagsModel.GSI = append(t.TagsModel.GSI, *gsIndex)
 	}
@@ -276,6 +278,7 @@ func (t *TagMapper) GetType(key string) reflect.Kind {
 	return t.Types[key]
 }
 
+// GetModel recupera o modelo de tags
 func (t *TagMapper) GetModel() *TagsModel {
 	return t.TagsModel
 }

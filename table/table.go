@@ -57,10 +57,35 @@ func (t *Table) GetMetadata() tagManager.Manager {
 // AttributeDefinitions é o método que retorna a definição de atributos para a PK.
 // A PK é composta de Hash e Range keys
 func (t *Table) AttributeDefinitions() []types.AttributeDefinition {
-	return []types.AttributeDefinition{
+	attrDefinitions := []types.AttributeDefinition{
 		t.getAttrDefinition(t.Metadata.GetHash()),
 		t.getAttrDefinition(t.Metadata.GetRange()),
 	}
+
+	log.Println("performing attributes definition")
+	// Adiciona os atributos de Global Secondary Index às definições
+	// de atributos da Tabela
+	for _, gsi := range t.GetGSI() {
+		for _, key := range gsi.KeySchema {
+			issetField := false
+
+			for _, attr := range attrDefinitions {
+				log.Printf("%s == %s\n", *attr.AttributeName, *key.AttributeName)
+				if *attr.AttributeName == *key.AttributeName && !issetField {
+					issetField = true
+				}
+			}
+
+			// Se o atributo não estiver na lista de atributos, adiciona
+			if !issetField {
+				attrDefinitions = append(attrDefinitions, t.getAttrDefinition(*key.AttributeName))
+			}
+		}
+	}
+
+	log.Printf("attr definitions: %v", attrDefinitions)
+
+	return attrDefinitions
 }
 
 // KeySchema é o método que retorna o schema de chaves que compõe a PK
@@ -143,6 +168,10 @@ func (t *Table) GetGSI() []types.GlobalSecondaryIndex {
 	model := t.GetMetadata().GetMapper().GetModel()
 
 	for _, gsi := range model.GSI {
+		if gsi.IndexName == "" {
+			continue
+		}
+
 		parseGSI := types.GlobalSecondaryIndex{
 			IndexName: aws.String(gsi.IndexName),
 			KeySchema: []types.KeySchemaElement{
@@ -150,18 +179,18 @@ func (t *Table) GetGSI() []types.GlobalSecondaryIndex {
 					AttributeName: aws.String(gsi.Hash),
 					KeyType:       types.KeyTypeHash,
 				},
+				{
+					AttributeName: aws.String(gsi.Range),
+					KeyType:       types.KeyTypeRange,
+				},
 			},
 			ProvisionedThroughput: &types.ProvisionedThroughput{
 				ReadCapacityUnits:  aws.Int64(int64(gsi.ProvisionedThroughput.ReadCapacity)),
 				WriteCapacityUnits: aws.Int64(int64(gsi.ProvisionedThroughput.WriteCapacity)),
 			},
-		}
-
-		if gsi.Range != "" {
-			parseGSI.KeySchema = append(parseGSI.KeySchema, types.KeySchemaElement{
-				AttributeName: aws.String(gsi.Range),
-				KeyType:       types.KeyTypeRange,
-			})
+			Projection: &types.Projection{
+				ProjectionType: types.ProjectionType("ALL"),
+			},
 		}
 
 		GSIs = append(GSIs, parseGSI)
@@ -176,20 +205,23 @@ func (t *Table) GetLSI() []types.LocalSecondaryIndex {
 
 	model := t.GetMetadata().GetMapper().GetModel()
 
-	for _, gsi := range model.GSI {
+	for _, lsi := range model.LSI {
 		parseLSI := types.LocalSecondaryIndex{
-			IndexName: aws.String(gsi.IndexName),
+			IndexName: aws.String(lsi.IndexName),
 			KeySchema: []types.KeySchemaElement{
 				{
-					AttributeName: aws.String(gsi.Hash),
+					AttributeName: aws.String(lsi.Hash),
 					KeyType:       types.KeyTypeHash,
 				},
 			},
+			Projection: &types.Projection{
+				ProjectionType: types.ProjectionType("ALL"),
+			},
 		}
 
-		if gsi.Range != "" {
+		if lsi.Range != "" {
 			parseLSI.KeySchema = append(parseLSI.KeySchema, types.KeySchemaElement{
-				AttributeName: aws.String(gsi.Range),
+				AttributeName: aws.String(lsi.Range),
 				KeyType:       types.KeyTypeRange,
 			})
 		}

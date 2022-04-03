@@ -121,7 +121,13 @@ func (d *DynamoClient) Migrate() error {
 		LocalSecondaryIndexes:  d.Table.GetLSI(),
 	})
 
-	d.Info("%+v\n", output)
+	if err != nil {
+		return err
+	}
+
+	d.Debug("table created with GSIs: %+v\n", d.Table.GetGSI())
+
+	d.Debug("new table %s created\n", *output.TableDescription.TableName)
 
 	return err
 }
@@ -137,6 +143,7 @@ func (d *DynamoClient) Seed(items ...map[string]types.AttributeValue) error {
 	var transactItems []types.TransactWriteItem
 
 	for _, item := range items {
+		d.Debug("seeding item: %+v\n", item)
 		transactItems = append(transactItems, types.TransactWriteItem{
 			Put: &types.Put{
 				Item:      item,
@@ -187,6 +194,15 @@ func (d *DynamoClient) FlushDb() {
 		}
 	}
 
+	out, err := d.Client.DeleteTable(d.Ctx, &dynamodb.DeleteTableInput{
+		TableName: d.TableName,
+	})
+
+	if err != nil {
+		d.Critical("failed on delete table: %v\n", err)
+	}
+
+	d.Info("table '%s' deleted\n", *out.TableDescription.TableName)
 	d.Info("db flush complete")
 }
 
@@ -231,6 +247,7 @@ func (d *DynamoClient) CreateTable() error {
 	}
 
 	_, err := d.Client.CreateTable(d.Ctx, table)
+	d.Debug("table `%+v` created\n", table.TableName)
 
 	return err
 }
