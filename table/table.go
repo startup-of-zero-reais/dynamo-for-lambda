@@ -179,10 +179,6 @@ func (t *Table) GetGSI() []types.GlobalSecondaryIndex {
 					AttributeName: aws.String(gsi.Hash),
 					KeyType:       types.KeyTypeHash,
 				},
-				{
-					AttributeName: aws.String(gsi.Range),
-					KeyType:       types.KeyTypeRange,
-				},
 			},
 			ProvisionedThroughput: &types.ProvisionedThroughput{
 				ReadCapacityUnits:  aws.Int64(int64(gsi.ProvisionedThroughput.ReadCapacity)),
@@ -191,6 +187,13 @@ func (t *Table) GetGSI() []types.GlobalSecondaryIndex {
 			Projection: &types.Projection{
 				ProjectionType: types.ProjectionType("ALL"),
 			},
+		}
+
+		if gsi.Range != "" {
+			parseGSI.KeySchema = append(parseGSI.KeySchema, types.KeySchemaElement{
+				AttributeName: aws.String(gsi.Range),
+				KeyType:       types.KeyTypeRange,
+			})
 		}
 
 		GSIs = append(GSIs, parseGSI)

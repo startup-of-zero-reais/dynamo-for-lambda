@@ -110,24 +110,12 @@ func (d *DynamoClient) Migrate() error {
 		return nil
 	}
 
-	output, err := d.Client.CreateTable(d.Ctx, &dynamodb.CreateTableInput{
-		AttributeDefinitions:   d.Table.AttributeDefinitions(),
-		KeySchema:              d.Table.KeySchema(),
-		TableName:              d.TableName,
-		BillingMode:            d.Table.Billing(),
-		ProvisionedThroughput:  d.Table.ProvisionedThroughput(),
-		TableClass:             types.TableClass(d.Table.TableClass()),
-		GlobalSecondaryIndexes: d.Table.GetGSI(),
-		LocalSecondaryIndexes:  d.Table.GetLSI(),
-	})
-
+	err = d.CreateTable()
 	if err != nil {
 		return err
 	}
 
 	d.Debug("table created with GSIs: %+v\n", d.Table.GetGSI())
-
-	d.Debug("new table %s created\n", *output.TableDescription.TableName)
 
 	return err
 }
@@ -243,11 +231,15 @@ func (d *DynamoClient) CreateTable() error {
 		GlobalSecondaryIndexes: d.GetGSI(),
 		LocalSecondaryIndexes:  d.GetLSI(),
 		ProvisionedThroughput:  d.ProvisionedThroughput(),
-		TableClass:             d.TableClass(),
+		TableClass:             types.TableClass(d.Table.TableClass()),
 	}
 
 	_, err := d.Client.CreateTable(d.Ctx, table)
+	if err != nil {
+		return err
+	}
+
 	d.Debug("table `%+v` created\n", table.TableName)
 
-	return err
+	return nil
 }
