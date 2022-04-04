@@ -31,6 +31,7 @@ func (d *DynamoClient) Query(expression domain.SqlExpression, target interface{}
 		TableName:                 d.TableName,
 		KeyConditionExpression:    expression.KeyCondition(),
 		ExpressionAttributeValues: expression.ExpressionAttributeValues(),
+		IndexName:                 expression.IndexName(),
 	})
 
 	if err != nil {

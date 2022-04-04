@@ -36,6 +36,10 @@ func (e *Expression) SetIndex(indexName string) domain.SqlExpression {
 	return e
 }
 
+func (e *Expression) IndexName() *string {
+	return e.indexName
+}
+
 func (e *Expression) Where(condition domain.WithCondition) domain.SqlExpression {
 	e.expressions["key"] = condition
 	return e
