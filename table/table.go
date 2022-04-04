@@ -62,7 +62,6 @@ func (t *Table) AttributeDefinitions() []types.AttributeDefinition {
 		t.getAttrDefinition(t.Metadata.GetRange()),
 	}
 
-	log.Println("performing attributes definition")
 	// Adiciona os atributos de Global Secondary Index às definições
 	// de atributos da Tabela
 	for _, gsi := range t.GetGSI() {
@@ -70,7 +69,6 @@ func (t *Table) AttributeDefinitions() []types.AttributeDefinition {
 			issetField := false
 
 			for _, attr := range attrDefinitions {
-				log.Printf("%s == %s\n", *attr.AttributeName, *key.AttributeName)
 				if *attr.AttributeName == *key.AttributeName && !issetField {
 					issetField = true
 				}
@@ -82,8 +80,6 @@ func (t *Table) AttributeDefinitions() []types.AttributeDefinition {
 			}
 		}
 	}
-
-	log.Printf("attr definitions: %v", attrDefinitions)
 
 	return attrDefinitions
 }

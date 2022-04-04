@@ -79,6 +79,8 @@ func (d *DynamoClient) Perform(action domain.Action, sql domain.SqlExpression, t
 		return d.Get(sql, target)
 	case PUT:
 		return d.Put(sql, target)
+	case QUERY:
+		return d.Query(sql, target)
 	}
 	return nil
 }
@@ -97,6 +99,8 @@ func (d *DynamoClient) Migrate() error {
 		d.Critical("failed to list tables: %v", err)
 	}
 
+	d.Debug("found %d tables\n", len(tables.TableNames))
+
 	created := false
 	for _, table := range tables.TableNames {
 		d.Info("checking table: %s\n", table)
@@ -107,6 +111,7 @@ func (d *DynamoClient) Migrate() error {
 	}
 
 	if created {
+		d.Info("table `%s` already exists\n", *d.TableName)
 		return nil
 	}
 
@@ -114,8 +119,6 @@ func (d *DynamoClient) Migrate() error {
 	if err != nil {
 		return err
 	}
-
-	d.Debug("table created with GSIs: %+v\n", d.Table.GetGSI())
 
 	return err
 }
@@ -239,7 +242,7 @@ func (d *DynamoClient) CreateTable() error {
 		return err
 	}
 
-	d.Debug("table `%+v` created\n", table.TableName)
+	d.Debug("table `%+v` created\n", *d.TableName)
 
 	return nil
 }

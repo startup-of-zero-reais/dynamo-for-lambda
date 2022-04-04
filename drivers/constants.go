@@ -10,6 +10,7 @@ const (
 
 	GET    = domain.Action("GET")
 	PUT    = domain.Action("PUT")
+	QUERY  = domain.Action("QUERY")
 	UPDATE = domain.Action("UPDATE")
 	DELETE = domain.Action("DELETE")
 

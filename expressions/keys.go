@@ -10,6 +10,11 @@ import (
 )
 
 type (
+	condition struct {
+		expression string
+		condition  domain.Condition
+	}
+
 	KeyCondition struct {
 		name *string
 		Val  interface{}
@@ -19,6 +24,11 @@ type (
 		exists bool
 		name   *string
 		Val    interface{}
+
+		betweenStart interface{}
+		betweenEnd   interface{}
+
+		condition condition
 	}
 )
 
@@ -48,10 +58,14 @@ func (k *KeyCondition) Value() types.AttributeValue {
 	return &types.AttributeValueMemberS{Value: fmt.Sprintf("%v", k.Val)}
 }
 
+func (k *KeyCondition) KeyCondition() string {
+	return fmt.Sprintf("%s = :key", *k.name)
+}
+
 /* SortKeyCondition */
 
-func NewSortKeyCondition(name string, val interface{}) domain.WithSortKeyCondition {
-	ksc := &SortKeyCondition{Val: val}
+func NewSortKeyCondition(name string) domain.WithSortKeyCondition {
+	ksc := &SortKeyCondition{}
 	ksc.SetName(name)
 
 	return ksc
@@ -76,5 +90,89 @@ func (k *SortKeyCondition) Value() types.AttributeValue {
 }
 
 func (k *SortKeyCondition) HasSortKey() bool {
-	return k.exists == true
+	return k.exists
+}
+
+func (k *SortKeyCondition) StarsWith(value interface{}) domain.WithSortKeyCondition {
+	k.condition = condition{
+		expression: fmt.Sprintf("begins_with(%s, :sortVal)", *k.name),
+		condition:  StartsWith,
+	}
+	k.Val = value
+	return k
+}
+
+func (k *SortKeyCondition) Equal(value interface{}) domain.WithSortKeyCondition {
+	k.condition = condition{
+		expression: fmt.Sprintf("%s = :sortVal", *k.name),
+		condition:  Equal,
+	}
+	k.Val = value
+	return k
+}
+
+func (k *SortKeyCondition) LessThan(value interface{}) domain.WithSortKeyCondition {
+	k.condition = condition{
+		expression: fmt.Sprintf("%s < :sortVal", *k.name),
+		condition:  LessThan,
+	}
+	k.Val = value
+	return k
+}
+
+func (k *SortKeyCondition) LessThanOrEqual(value interface{}) domain.WithSortKeyCondition {
+	k.condition = condition{
+		expression: fmt.Sprintf("%s <= :sortVal", *k.name),
+		condition:  LessThanOrEqual,
+	}
+	k.Val = value
+
+	return k
+}
+
+func (k *SortKeyCondition) GreaterThan(value interface{}) domain.WithSortKeyCondition {
+	k.condition = condition{
+		expression: fmt.Sprintf("%s > :sortVal", *k.name),
+		condition:  GreaterThan,
+	}
+	k.Val = value
+
+	return k
+}
+
+func (k *SortKeyCondition) GreaterThanOrEqual(value interface{}) domain.WithSortKeyCondition {
+	k.condition = condition{
+		expression: fmt.Sprintf("%s >= :sortVal", *k.name),
+		condition:  GreaterThanOrEqual,
+	}
+	k.Val = value
+
+	return k
+}
+
+func (k *SortKeyCondition) Between(start, end interface{}) domain.WithSortKeyCondition {
+	k.condition = condition{
+		expression: fmt.Sprintf("%sBETWEEN:startAND:end", *k.name),
+		condition:  Between,
+	}
+	k.betweenStart = start
+	k.betweenEnd = end
+
+	return k
+}
+
+func (k *SortKeyCondition) KeyCondition() string {
+	return k.condition.expression
+}
+
+func (k *SortKeyCondition) SimpleCondition() bool {
+	return k.condition.condition != Between
+}
+
+func (k *SortKeyCondition) StartValue() interface{} {
+	return k.betweenStart
+}
+
+func (k *SortKeyCondition) EndValue() interface{} {
+	return k.betweenEnd
 }

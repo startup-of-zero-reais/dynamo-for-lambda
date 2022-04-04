@@ -197,7 +197,6 @@ func (t *TagMapper) ExtractGSI(tagsPair []string, field reflect.StructField) err
 		return errors.New("max global secondary index reached")
 	}
 
-	t.Info("adding gsi: %+v\n", gsIndex)
 	if gsIndex.IndexName != "" && gsIndex.Hash != "" {
 		t.TagsModel.GSI = append(t.TagsModel.GSI, *gsIndex)
 	}

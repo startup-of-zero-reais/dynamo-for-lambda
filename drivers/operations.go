@@ -26,6 +26,25 @@ func (d *DynamoClient) Get(expression domain.SqlExpression, target interface{}) 
 	return nil
 }
 
+func (d *DynamoClient) Query(expression domain.SqlExpression, target interface{}) error {
+	output, err := d.Client.Query(d.Ctx, &dynamodb.QueryInput{
+		TableName:                 d.TableName,
+		KeyConditionExpression:    expression.KeyCondition(),
+		ExpressionAttributeValues: expression.ExpressionAttributeValues(),
+	})
+
+	if err != nil {
+		return fmt.Errorf("query: %v", err)
+	}
+
+	err = attributevalue.UnmarshalListOfMaps(output.Items, target)
+	if err != nil {
+		return fmt.Errorf("UnmarshalMap: %v", err)
+	}
+
+	return nil
+}
+
 func (d *DynamoClient) Put(item domain.SqlExpression, result interface{}) error {
 	_, err := d.Client.PutItem(d.Ctx, &dynamodb.PutItemInput{
 		Item:      item.Values(),

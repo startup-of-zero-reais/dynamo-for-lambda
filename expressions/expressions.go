@@ -1,6 +1,7 @@
 package expressions
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -48,9 +49,29 @@ func (e *Expression) AndWhere(keyCondition domain.WithSortKeyCondition) domain.S
 	return e
 }
 
-func (e *Expression) Build() map[string]types.AttributeValue {
-	built := map[string]types.AttributeValue{}
-	return built
+func (e *Expression) ExpressionAttributeValues() map[string]types.AttributeValue {
+	if e.expressions["sortKey"] == nil {
+		return map[string]types.AttributeValue{":key": e.expressions["key"].Value()}
+	}
+
+	sortKeyCondition := e.expressions["sortKey"].(domain.WithSortKeyCondition)
+
+	if sortKeyCondition.SimpleCondition() {
+		return map[string]types.AttributeValue{
+			":key":     e.expressions["key"].Value(),
+			":sortVal": sortKeyCondition.Value(),
+		}
+	}
+
+	return map[string]types.AttributeValue{
+		":key": e.expressions["key"].Value(),
+		":start": e.getAttributeValueMember(
+			reflect.ValueOf(sortKeyCondition.StartValue()),
+		),
+		":end": e.getAttributeValueMember(
+			reflect.ValueOf(sortKeyCondition.EndValue()),
+		),
+	}
 }
 
 func (e *Expression) Key() map[string]types.AttributeValue {
@@ -69,7 +90,17 @@ func (e *Expression) Key() map[string]types.AttributeValue {
 }
 
 func (e *Expression) KeyCondition() *string {
-	return aws.String("")
+	if e.expressions["sortKey"] == nil {
+		return aws.String(e.expressions["key"].KeyCondition())
+	}
+
+	sortKeyCondition := e.expressions["sortKey"].KeyCondition()
+
+	return aws.String(fmt.Sprintf(
+		"%s and %s",
+		e.expressions["key"].KeyCondition(),
+		sortKeyCondition,
+	))
 }
 
 func (e *Expression) SetItem(item interface{}) domain.SqlExpression {
