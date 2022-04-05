@@ -81,6 +81,8 @@ func (d *DynamoClient) Perform(action domain.Action, sql domain.SqlExpression, t
 		return d.Put(sql, target)
 	case QUERY:
 		return d.Query(sql, target)
+	case UPDATE:
+		return d.Update(sql, target)
 	}
 	return nil
 }

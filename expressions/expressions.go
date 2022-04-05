@@ -17,7 +17,11 @@ type (
 
 		item interface{}
 
-		expressions map[string]domain.WithCondition
+		expressions      map[string]domain.WithCondition
+		updateExpression string
+
+		attributeNames  map[string]string
+		attributeValues map[string]types.AttributeValue
 	}
 )
 
@@ -54,6 +58,10 @@ func (e *Expression) AndWhere(keyCondition domain.WithSortKeyCondition) domain.S
 }
 
 func (e *Expression) ExpressionAttributeValues() map[string]types.AttributeValue {
+	if e.updateExpression != "" {
+		return e.attributeValues
+	}
+
 	if e.expressions["sortKey"] == nil {
 		return map[string]types.AttributeValue{":key": e.expressions["key"].Value()}
 	}
@@ -154,4 +162,41 @@ func (e *Expression) getAttributeValueMember(val reflect.Value) types.AttributeV
 	default:
 		return &types.AttributeValueMemberS{Value: val.String()}
 	}
+}
+
+func (e *Expression) Update(keys ...domain.WithCondition) domain.SqlExpression {
+	setExpression := ""
+	attributeNames := map[string]string{}
+	attributeValues := map[string]types.AttributeValue{}
+
+	for key, expr := range keys {
+		express := fmt.Sprintf("#%s = :%s", expr.Name(), expr.Name())
+		if key != 0 {
+			setExpression += ", "
+		}
+		setExpression += express
+
+		attrKey := fmt.Sprintf("#%s", expr.Name())
+		attrValue := fmt.Sprintf(":%s", expr.Name())
+		attributeNames[attrKey] = expr.Name()
+		attributeValues[attrValue] = expr.Value()
+	}
+
+	if setExpression == "" {
+		panic(fmt.Errorf("update expression is empty"))
+	}
+
+	e.updateExpression = "SET " + setExpression
+	e.attributeNames = attributeNames
+	e.attributeValues = attributeValues
+
+	return e
+}
+
+func (e *Expression) UpdateExpression() *string {
+	return aws.String(e.updateExpression)
+}
+
+func (e *Expression) AttributeNames() map[string]string {
+	return e.attributeNames
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/startup-of-zero-reais/dynamo-for-lambda/domain"
-	"github.com/startup-of-zero-reais/dynamo-for-lambda/expressions"
 )
 
 func (d *DynamoClient) Get(expression domain.SqlExpression, target interface{}) error {
@@ -63,7 +62,24 @@ func (d *DynamoClient) Put(item domain.SqlExpression, result interface{}) error 
 	return nil
 }
 
-func (d *DynamoClient) Update(expression expressions.Expression, item interface{}, result interface{}) error {
+func (d *DynamoClient) Update(expression domain.SqlExpression, result interface{}) error {
+	out, err := d.Client.UpdateItem(d.Ctx, &dynamodb.UpdateItemInput{
+		TableName:                 d.TableName,
+		Key:                       expression.Key(),
+		UpdateExpression:          expression.UpdateExpression(),
+		ExpressionAttributeValues: expression.ExpressionAttributeValues(),
+		ExpressionAttributeNames:  expression.AttributeNames(),
+	})
+
+	if err != nil {
+		return fmt.Errorf("update item: %v", err)
+	}
+
+	err = attributevalue.UnmarshalMap(out.Attributes, result)
+	if err != nil {
+		return fmt.Errorf("UnmarshalMap: %v", err)
+	}
+
 	return nil
 }
 

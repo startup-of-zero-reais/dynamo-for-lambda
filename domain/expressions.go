@@ -35,6 +35,9 @@ type (
 		AndWhere(keyCondition WithSortKeyCondition) SqlExpression
 		ExpressionAttributeValues() map[string]types.AttributeValue
 		IndexName() *string
+		Update(keys ...WithCondition) SqlExpression
+		UpdateExpression() *string
+		AttributeNames() map[string]string
 
 		Key() map[string]types.AttributeValue
 		KeyCondition() *string
