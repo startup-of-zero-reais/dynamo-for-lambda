@@ -83,6 +83,8 @@ func (d *DynamoClient) Perform(action domain.Action, sql domain.SqlExpression, t
 		return d.Query(sql, target)
 	case UPDATE:
 		return d.Update(sql, target)
+	case DELETE:
+		return d.Delete(sql)
 	}
 	return nil
 }

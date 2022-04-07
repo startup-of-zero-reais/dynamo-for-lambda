@@ -84,5 +84,19 @@ func (d *DynamoClient) Update(expression domain.SqlExpression, result interface{
 }
 
 func (d *DynamoClient) Delete(expression domain.SqlExpression) error {
+	out, err := d.Client.DeleteItem(d.Ctx, &dynamodb.DeleteItemInput{
+		TableName: d.TableName,
+		Key:       expression.Key(),
+	})
+
+	if err != nil {
+		return fmt.Errorf("delete item: %v", err)
+	}
+
+	err = attributevalue.UnmarshalMap(out.Attributes, nil)
+	if err != nil {
+		return fmt.Errorf("UnmarshalMap: %v", err)
+	}
+
 	return nil
 }
