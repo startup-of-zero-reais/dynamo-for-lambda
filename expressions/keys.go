@@ -3,6 +3,7 @@ package expressions
 import (
 	"fmt"
 	"log"
+	"reflect"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -55,7 +56,7 @@ func (k *KeyCondition) Value() types.AttributeValue {
 		log.Fatalf("%s has a nil value", k.Name())
 	}
 
-	return &types.AttributeValueMemberS{Value: fmt.Sprintf("%v", k.Val)}
+	return GetAttributeValueMemberType(reflect.ValueOf(k.Val))
 }
 
 func (k *KeyCondition) KeyCondition() string {

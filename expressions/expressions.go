@@ -149,19 +149,7 @@ func (e *Expression) Values() map[string]types.AttributeValue {
 }
 
 func (e *Expression) getAttributeValueMember(val reflect.Value) types.AttributeValue {
-	switch val.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", val.Interface())}
-	case reflect.Bool:
-		return &types.AttributeValueMemberBOOL{Value: val.Bool()}
-	//case reflect.Map:
-
-	case reflect.Slice, reflect.Array:
-		return &types.AttributeValueMemberSS{Value: val.Interface().([]string)}
-	default:
-		return &types.AttributeValueMemberS{Value: val.String()}
-	}
+	return GetAttributeValueMemberType(val)
 }
 
 func (e *Expression) Update(keys ...domain.WithCondition) domain.SqlExpression {
