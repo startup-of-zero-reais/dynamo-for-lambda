@@ -87,7 +87,7 @@ func (k *SortKeyCondition) Value() types.AttributeValue {
 		log.Fatalf("%s has a nil value", k.Name())
 	}
 
-	return &types.AttributeValueMemberS{Value: fmt.Sprintf("%v", k.Val)}
+	return GetAttributeValueMemberType(reflect.ValueOf(k.Val))
 }
 
 func (k *SortKeyCondition) HasSortKey() bool {
