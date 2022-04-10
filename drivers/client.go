@@ -48,7 +48,7 @@ func NewDynamoClient(ctx context.Context, conf *domain.Config) *DynamoClient {
 		configs := buildConfigs(conf)
 		cfg, err = config.LoadDefaultConfig(ctx, configs...)
 	} else {
-		cfg, err = config.LoadDefaultConfig(ctx)
+		cfg, err = config.LoadDefaultConfig(ctx, config.WithRegion(conf.Region))
 	}
 
 	if err != nil {
