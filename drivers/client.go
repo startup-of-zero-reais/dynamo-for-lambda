@@ -67,6 +67,8 @@ func NewDynamoClient(ctx context.Context, conf *domain.Config) *DynamoClient {
 		Log:       conf.Log,
 	}
 
+	conf.Log.Info("dynamo client connected\n")
+
 	return dynamoClient
 }
 
