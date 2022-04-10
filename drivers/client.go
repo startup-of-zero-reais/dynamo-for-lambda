@@ -42,9 +42,14 @@ func NewDynamoClient(ctx context.Context, conf *domain.Config) *DynamoClient {
 		conf.Environment = dev
 	}
 
-	configs := buildConfigs(conf)
-
-	cfg, err := config.LoadDefaultConfig(ctx, configs...)
+	var cfg aws.Config
+	var err error
+	if conf.Environment.IsDev() {
+		configs := buildConfigs(conf)
+		cfg, err = config.LoadDefaultConfig(ctx, configs...)
+	} else {
+		cfg, err = config.LoadDefaultConfig(ctx)
+	}
 
 	if err != nil {
 		conf.Log.Critical("failed on load config: %v", err)
