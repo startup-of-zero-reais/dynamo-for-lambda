@@ -6,8 +6,6 @@ import (
 	"reflect"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/startup-of-zero-reais/dynamo-for-lambda/domain"
@@ -33,32 +31,8 @@ func NewDynamoClient(ctx context.Context, conf *domain.Config) *DynamoClient {
 		conf.Log = logger.NewLogger()
 	}
 
-	if conf.Region == "" {
-		conf.Region = "us-east-1"
-	}
-
-	if conf.Environment == "" {
-		conf.Log.Debug("empty environment, setting to development...")
-		conf.Environment = dev
-	}
-
-	var cfg aws.Config
-	var err error
-	if conf.Environment.IsDev() {
-		configs := buildConfigs(conf)
-		cfg, err = config.LoadDefaultConfig(ctx, configs...)
-	} else {
-		cfg, err = config.LoadDefaultConfig(ctx)
-	}
-
-	if err != nil {
-		conf.Log.Critical("failed on load config: %v", err)
-	}
-
-	client := dynamodb.NewFromConfig(cfg)
-
 	dynamoClient := &DynamoClient{
-		Client:    client,
+		Client:    conf.Client,
 		Ctx:       ctx,
 		TableName: aws.String(conf.TableName),
 		HashKey:   aws.String(conf.GetMetadata().GetHash()),
@@ -203,55 +177,6 @@ func (d *DynamoClient) FlushDb() {
 
 	d.Info("table '%s' deleted\n", *out.TableDescription.TableName)
 	d.Info("db flush complete")
-}
-
-func buildConfigs(conf *domain.Config) []func(options *config.LoadOptions) error {
-	var configs []func(options *config.LoadOptions) error
-
-	if conf.Environment.IsDev() {
-		if conf.Endpoint == "" {
-			conf.Endpoint = "http://localhost:8000"
-		}
-	}
-
-	if conf.Region == "" {
-		conf.Region = "us-east-1"
-	}
-
-	conf.Log.Debug("dev environment, setting dynamo endpoint to %s\n", conf.Endpoint)
-
-	if conf.Endpoint != "" {
-		configs = append(configs,
-			config.WithEndpointResolverWithOptions(
-				aws.EndpointResolverWithOptionsFunc(
-					func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-						return aws.Endpoint{URL: conf.Endpoint}, nil
-					},
-				),
-			),
-		)
-	}
-
-	configs = append(configs,
-		config.WithRegion(conf.Region),
-	)
-
-	if conf.Environment.IsDev() {
-		configs = append(configs,
-			config.WithCredentialsProvider(
-				credentials.StaticCredentialsProvider{
-					Value: aws.Credentials{
-						AccessKeyID:     "TEST",
-						SecretAccessKey: "TEST",
-						SessionToken:    "TEST",
-						Source:          "Hard-coded credentials; values are irrelevant for local DynamoDB",
-					},
-				},
-			),
-		)
-	}
-
-	return configs
 }
 
 func (d *DynamoClient) CreateTable() error {
