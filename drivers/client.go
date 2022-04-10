@@ -43,13 +43,7 @@ func NewDynamoClient(ctx context.Context, conf *domain.Config) *DynamoClient {
 	}
 
 	var configs []func(options *config.LoadOptions) error
-	if conf.Environment.IsDev() {
-		if conf.Endpoint == "" {
-			conf.Endpoint = "http://localhost:8000"
-		}
-
-		configs = devConfigs(conf)
-	}
+	configs = buildConfigs(conf)
 
 	cfg, err := config.LoadDefaultConfig(ctx, configs...)
 
@@ -205,8 +199,18 @@ func (d *DynamoClient) FlushDb() {
 	d.Info("db flush complete")
 }
 
-func devConfigs(conf *domain.Config) []func(options *config.LoadOptions) error {
+func buildConfigs(conf *domain.Config) []func(options *config.LoadOptions) error {
 	var configs []func(options *config.LoadOptions) error
+
+	if conf.Environment.IsDev() {
+		if conf.Endpoint == "" {
+			conf.Endpoint = "http://localhost:8000"
+		}
+	}
+
+	if conf.Region == "" {
+		conf.Region = "us-east-1"
+	}
 
 	conf.Log.Debug("dev environment, setting dynamo endpoint to %s\n", conf.Endpoint)
 	configs = append(configs,
@@ -217,18 +221,23 @@ func devConfigs(conf *domain.Config) []func(options *config.LoadOptions) error {
 				},
 			),
 		),
-		config.WithCredentialsProvider(
-			credentials.StaticCredentialsProvider{
-				Value: aws.Credentials{
-					AccessKeyID:     "TEST",
-					SecretAccessKey: "TEST",
-					SessionToken:    "TEST",
-					Source:          "Hard-coded credentials; values are irrelevant for local DynamoDB",
-				},
-			},
-		),
-		config.WithRegion("us-east-1"),
+		config.WithRegion(conf.Region),
 	)
+
+	if conf.Environment.IsDev() {
+		configs = append(configs,
+			config.WithCredentialsProvider(
+				credentials.StaticCredentialsProvider{
+					Value: aws.Credentials{
+						AccessKeyID:     "TEST",
+						SecretAccessKey: "TEST",
+						SessionToken:    "TEST",
+						Source:          "Hard-coded credentials; values are irrelevant for local DynamoDB",
+					},
+				},
+			),
+		)
+	}
 
 	return configs
 }
