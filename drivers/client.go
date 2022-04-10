@@ -42,8 +42,7 @@ func NewDynamoClient(ctx context.Context, conf *domain.Config) *DynamoClient {
 		conf.Environment = dev
 	}
 
-	var configs []func(options *config.LoadOptions) error
-	configs = buildConfigs(conf)
+	configs := buildConfigs(conf)
 
 	cfg, err := config.LoadDefaultConfig(ctx, configs...)
 
@@ -213,14 +212,20 @@ func buildConfigs(conf *domain.Config) []func(options *config.LoadOptions) error
 	}
 
 	conf.Log.Debug("dev environment, setting dynamo endpoint to %s\n", conf.Endpoint)
-	configs = append(configs,
-		config.WithEndpointResolverWithOptions(
-			aws.EndpointResolverWithOptionsFunc(
-				func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-					return aws.Endpoint{URL: conf.Endpoint}, nil
-				},
+
+	if conf.Endpoint != "" {
+		configs = append(configs,
+			config.WithEndpointResolverWithOptions(
+				aws.EndpointResolverWithOptionsFunc(
+					func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+						return aws.Endpoint{URL: conf.Endpoint}, nil
+					},
+				),
 			),
-		),
+		)
+	}
+
+	configs = append(configs,
 		config.WithRegion(conf.Region),
 	)
 
