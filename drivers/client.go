@@ -33,6 +33,10 @@ func NewDynamoClient(ctx context.Context, conf *domain.Config) *DynamoClient {
 		conf.Log = logger.NewLogger()
 	}
 
+	if conf.Region == "" {
+		conf.Region = "us-east-1"
+	}
+
 	if conf.Environment == "" {
 		conf.Log.Debug("empty environment, setting to development...")
 		conf.Environment = dev

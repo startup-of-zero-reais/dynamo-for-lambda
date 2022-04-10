@@ -7,6 +7,7 @@ type (
 		TableName   string
 		Environment Environment
 		Endpoint    string
+		Region      string
 		Table
 		logger.Log
 	}
